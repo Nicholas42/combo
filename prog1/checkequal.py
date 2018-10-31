@@ -1,3 +1,4 @@
+#!/bin/env python3
 import sys, os
 
 OPTIMA_FILE = os.path.join("graphs", "optima.md")
@@ -36,7 +37,7 @@ def get_optimum(graph):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("""Usage: ./%s solutionfile.sol"""%sys.argv[0])
+        print("""Usage: %s solutionfile.sol"""%sys.argv[0])
         sys.exit()
 
     num_edges = get_edges(sys.argv[1])
