@@ -9,4 +9,4 @@ include_directories(.)
 add_executable(edmonds.out
         graph.cpp
         graph.hpp
-        main.cpp edmonds.cpp edmonds.h)
+        main.cpp edmonds.cpp edmonds.hpp)
