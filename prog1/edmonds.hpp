@@ -2,6 +2,7 @@
 #define EDMONDS_HPP
 
 #include "graph.hpp"
+#include <cassert>
 
 namespace ED
 {
@@ -43,6 +44,10 @@ namespace ED
         bool forest_edge(NodeId v, NodeId u) const;
 
         bool matching_edge(NodeId v, NodeId u) const;
+
+        std::vector<NodeId> get_path(NodeId v) const;
+
+        NodeId get_intersection(std::vector<NodeId> x_path, std::vector<NodeId> y_path) const;
 
         void scan_node(NodeId node);
 
