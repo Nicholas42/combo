@@ -3,9 +3,11 @@
 
 #include "graph.hpp"
 #include <cassert>
+#include <iostream>
 
 namespace ED
 {
+    using Path = std::vector<NodeId>;
     enum class NodeType
     {
         outer,
@@ -15,6 +17,7 @@ namespace ED
 
     class EdmondsMatching
     {
+
     public:
         static Graph get_matching(const Graph &g);
 
@@ -45,11 +48,17 @@ namespace ED
 
         bool matching_edge(NodeId v, NodeId u) const;
 
-        std::vector<NodeId> get_path(NodeId v) const;
+        Path get_path(NodeId v) const;
 
-        NodeId get_intersection(std::vector<NodeId> x_path, std::vector<NodeId> y_path) const;
+        NodeId get_intersection(Path x_path, Path y_path) const;
 
         void scan_node(NodeId node);
+
+        void augment(NodeId x, NodeId y, Path x_path, Path y_path);
+
+        void shrink(NodeId x, NodeId y, NodeId intersection, Path x_path, Path y_path);
+
+        void run();
 
         const Graph &_g;
         std::vector<NodeId> _phi;

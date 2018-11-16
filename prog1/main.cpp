@@ -2,6 +2,7 @@
 #include <cstdlib>
 
 #include "graph.hpp"
+#include "edmonds.hpp"
 
 
 int main(int argc, char** argv)
@@ -13,6 +14,9 @@ int main(int argc, char** argv)
    }
 
    ED::Graph graph = ED::Graph::build_graph(argv[1]);
-   std::cout << graph;
+
+   ED::Graph matching = ED::EdmondsMatching::get_matching(graph);
+
+   std::cout << matching;
    return EXIT_SUCCESS;
 }
