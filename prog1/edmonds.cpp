@@ -2,6 +2,18 @@
 
 namespace ED
 {
+
+  bool EdmondsMatching::check() const
+  {
+    for(size_t i = 0; i < _g.num_nodes(); ++i)
+      {
+	if(_phi[i] == _mu[i] && _mu[i] != i)
+	  {
+	    return false;
+	  }
+      }
+    return true;
+  }
 Graph EdmondsMatching::get_matching(const Graph &g)
 {
     Graph ret(g.num_nodes());
@@ -9,6 +21,14 @@ Graph EdmondsMatching::get_matching(const Graph &g)
     EdmondsMatching match(g);
     match.run();
     match.populate(ret);
+
+    for(size_t i = 0; i < ret.num_nodes(); ++i)
+    {
+	    if(ret.node(i).degree() > 1)
+	    {
+		    throw std::runtime_error("No matching.");
+	    }
+    }
 
     return ret;
 }
@@ -147,17 +167,14 @@ void EdmondsMatching::shrink(NodeId x, NodeId y, NodeId intersection, Path x_pat
         if (_rho[path_node] == path_node)
         {
             root = path_node;
+	    break;
         }
     }
     assert(root != invalid_node_id);
     std::cout << "Shrinking with root " << root << std::endl;
 
-    for (size_t i = 0; i < x_path.size(); i++)
+    for (size_t i = 0; i < x_path.size() && i != root; i++)
     {
-        if (i > 0 && x_path[i - 1] == root)
-        {
-            break;
-        }
         if (i % 2 == 0 || _rho[_phi[i]] == root)
         {
             continue;
@@ -165,12 +182,8 @@ void EdmondsMatching::shrink(NodeId x, NodeId y, NodeId intersection, Path x_pat
 
         _phi[_phi[i]] = i;
     }
-    for (size_t i = 0; i < y_path.size(); i++)
+    for (size_t i = 0; i < y_path.size() && i != root; i++)
     {
-        if (i > 0 && y_path[i - 1] == root)
-        {
-            break;
-        }
         if (i % 2 == 0 || _rho[_phi[i]] == root)
         {
             continue;
@@ -188,37 +201,63 @@ void EdmondsMatching::shrink(NodeId x, NodeId y, NodeId intersection, Path x_pat
         _phi[y] = x;
     }
 
-    for (size_t i = 0; i < x_path.size(); i++)
+    if(!check())
     {
-        if (i > 0 && x_path[i - 1] == root)
-        {
-            break;
-        }
-        _rho[i] = root;
+	std::cout << _rho[x_path[0]] << " " << _rho[y_path[0]] << std::endl;
+	for(auto i: x_path)
+	{
+		std::cout << i << " ";
+	}
+	std::cout << std::endl;
+	for(auto i: y_path)
+	{
+		std::cout << i << " ";
+	}
+	std::cout << std::endl;
+	assert(false);
     }
-    for (size_t i = 0; i < y_path.size(); i++)
+    std::vector<bool> on_path(_g.num_nodes(), false);
+    for(auto i: x_path)
     {
-        if (i > 0 && y_path[i - 1] == root)
-        {
-            break;
-        }
-        _rho[i] = root;
+	    on_path[i] = true;
+	    if(i == root)
+	    {
+		    break;
+	    }
     }
+    for(auto i: y_path)
+    {
+	    on_path[i] = true;
+	    if(i == root)
+	    {
+		    break;
+	    }
+    }
+    for (size_t i = 0; i < _g.num_nodes(); ++i)
+    {
+	if(on_path[_rho[i]])
+	{
+		_rho[i] = root;	
+	}	
+    }
+  assert(check());
 }
 
 void EdmondsMatching::scan_node(NodeId node)
 {
+  assert(check());
     const Node &n = _g.node(node);
     for (auto neighbor : n.neighbors())
     {
         NodeType type = get_type(neighbor);
 
         std::cout << "Looking at " << node << " " << neighbor << std::endl;
+	/*
         std::cout << "Values are:" << std::endl;
         for (int i = 0; i < _g.num_nodes(); i++)
         {
             std::cout << i << "\t" << _mu[i] << "\t" << _phi[i] << "\t" << _rho[i] << std::endl;
-        }
+	    }*/
         std::cout << "Type of neigbor is " << (int)type << std::endl;
 
         if (type == NodeType::out_of_forrest)

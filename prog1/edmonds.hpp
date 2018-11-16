@@ -40,6 +40,8 @@ namespace ED
 
         }
 
+      bool check() const;
+
         void populate(Graph &g) const;
 
         NodeType get_type(NodeId node) const;
