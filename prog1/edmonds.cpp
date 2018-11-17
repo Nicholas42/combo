@@ -37,23 +37,23 @@ Path EdmondsMatching::get_path(NodeId v) const
 {
     assert(get_type(v) == NodeType::outer);
 
-    Path path;
-    NodeId cur = v, last = invalid_node_id;
-    bool use_mu = true;
-    do
-    {
-        assert(path.size() <= _g.num_nodes());
-        path.push_back(cur);
-        last = cur;
-        if (use_mu)
+        Path path;
+        NodeId cur = v, last;
+        bool use_mu = true;
+        do
         {
-            cur = _mu[last];
-        }
-        else
-        {
-            cur = _phi[last];
-        }
-        use_mu = !use_mu;
+            assert(path.size() <= _g.num_nodes());
+            path.push_back(cur);
+            last = cur;
+            if (use_mu)
+            {
+                cur = _mu[last];
+            }
+            else
+            {
+                cur = _phi[last];
+            }
+            use_mu = !use_mu;
         } while (cur != last);
 
     return path;
@@ -235,15 +235,14 @@ void EdmondsMatching::run()
     {
         auto x = invalid_node_id;
 
-        for (NodeId i = 0; i < _g.num_nodes(); i++)
-        {
-            NodeType type = get_type(i);
-            if (type == NodeType::outer && !scanned[i])
+            for (NodeId i = 0; i < _g.num_nodes(); i++)
             {
-                x = i;
-                break;
+                if (get_type(i) == NodeType::outer && !scanned[i])
+                {
+                    x = i;
+                    break;
+                }
             }
-        }
 
             if (x == invalid_node_id)
             {

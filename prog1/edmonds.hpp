@@ -65,7 +65,7 @@ namespace ED
         std::vector<NodeId> _phi;
         std::vector<NodeId> _mu;
         std::vector<NodeId> _rho;
-        std::vector<bool> scanned;
+        std::vector<int> scanned;
 
     };
 
