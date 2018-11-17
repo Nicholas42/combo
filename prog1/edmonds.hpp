@@ -40,7 +40,10 @@ namespace ED
 
         }
 
-        void populate(Graph &g) const;
+        /**
+         * @return The current state of the matching.
+         */
+        Graph populate() const;
 
         NodeType get_type(NodeId node) const;
         

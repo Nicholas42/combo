@@ -5,17 +5,15 @@ namespace ED
 
 Graph EdmondsMatching::get_matching(const Graph &g)
 {
-    Graph ret(g.num_nodes());
 
     EdmondsMatching match(g);
     match.run();
-    match.populate(ret);
+    return match.populate();
+}
 
-        return ret;
-    }
-
-void EdmondsMatching::populate(Graph &g) const
+Graph EdmondsMatching::populate() const
 {
+    Graph g (_g.num_nodes());
     for (NodeId v = 0; v < g.num_nodes(); ++v)
     {
         NodeId other = _mu[v];
@@ -25,6 +23,7 @@ void EdmondsMatching::populate(Graph &g) const
             g.add_edge(v, other);
         }
     }
+    return g;
 }
 
 bool EdmondsMatching::forest_edge(NodeId v, NodeId u) const
