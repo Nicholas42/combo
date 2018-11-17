@@ -58,6 +58,9 @@ namespace ED
 
         void run();
 
+        template <typename func>
+        void do_on_odd(Path &p, func f, NodeId stop);
+
         const Graph &_g;
         std::vector<NodeId> _phi;
         std::vector<NodeId> _mu;

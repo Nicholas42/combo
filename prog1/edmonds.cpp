@@ -115,24 +115,22 @@ void EdmondsMatching::shrink(NodeId x, NodeId y, NodeId intersection, Path x_pat
     NodeId root = _rho[intersection];
     assert(get_type(root) == NodeType::outer);
 
-    for (size_t i = 0; i < x_path.size() && x_path[i] != root; i++)
-    {
-        if (i % 2 == 0 || _rho[_phi[i]] == root)
+        auto func = [this, root](NodeId n)
         {
-            continue;
-        }
+            if(_rho[_phi[n]] == root)
+            {
+                return true;
+            }
+            if (n == root)
+            {
+                return false;
+            }
+            _phi[_phi[n]] = n;
+            return true;
+        };
 
-        _phi[_phi[i]] = i;
-    }
-    for (size_t i = 0; i < y_path.size() && y_path[i] != intersection; i++)
-    {
-        if (i % 2 == 0 || _rho[_phi[i]] == root)
-        {
-            continue;
-        }
-
-        _phi[_phi[i]] = i;
-    }
+        do_on_odd(x_path, func, root);
+        do_on_odd(y_path, func, intersection);
 
     if (_rho[x] != root)
     {
@@ -143,31 +141,30 @@ void EdmondsMatching::shrink(NodeId x, NodeId y, NodeId intersection, Path x_pat
         _phi[y] = x;
     }
 
-    std::vector<int> on_path(_g.num_nodes(), false);
-    for(auto i: x_path)
-    {
-	    on_path[i] = true;
-	    if(i == root)
-	    {
-		    break;
-	    }
+        std::vector<int> on_path(_g.num_nodes(), false);
+        auto mark_path_nodes = [&on_path, this] (Path &p, NodeId abort)
+        {
+        for (auto i: p)
+        {
+            if(i == abort)
+            {
+                return;
+            }
+            on_path[i] = true;
+        }
+        };
+
+        mark_path_nodes(x_path, root);
+        mark_path_nodes(y_path, intersection);
+
+        for (NodeId i = 0; i < _g.num_nodes(); ++i)
+        {
+            if (on_path[_rho[i]])
+            {
+                _rho[i] = root;
+            }
+        }
     }
-    for(auto i: y_path)
-    {
-	    on_path[i] = true;
-	    if(i == intersection)
-	    {
-		    break;
-	    }
-    }
-    for (size_t i = 0; i < _g.num_nodes(); ++i)
-    {
-	if(on_path[_rho[i]])
-	{
-		_rho[i] = root;
-	}
-    }
-}
 
 void EdmondsMatching::scan_node(NodeId node)
 {
@@ -235,12 +232,26 @@ void EdmondsMatching::run()
             }
         }
 
-        if (x == invalid_node_id)
-        {
-            break;
+            if (x == invalid_node_id)
+            {
+                break;
+            }
+            scan_node(x);
         }
-        scan_node(x);
     }
+
+    template <typename func>
+    void EdmondsMatching::do_on_odd(Path &p, func f, NodeId stop)
+    {
+        bool go_on = true;
+        for (size_t i = 1; i < p.size() && go_on; i += 2)
+        {
+            if(p[i-1] == stop || p[i] == stop)
+            {
+                break;
+            }
+            go_on = f(p[i]);
+        }
 
 }
 
