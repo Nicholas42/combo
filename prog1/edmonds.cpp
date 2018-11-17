@@ -77,36 +77,49 @@ NodeId EdmondsMatching::get_intersection(Path x_path, Path y_path) const
     return invalid_node_id;
 }
 
-void EdmondsMatching::augment(NodeId x, NodeId y, Path x_path, Path y_path)
-{
-    for (size_t i = 0; i < x_path.size(); i++)
+    void EdmondsMatching::augment(NodeId x, NodeId y, Path x_path, Path y_path)
     {
-        if (i % 2 == 0)
-            continue;
+        std::vector<int> visited(_g.num_nodes(), false);
+        std::vector<NodeId> stack;
+        stack.push_back(x);
+        while(!stack.empty())
+        {
+            NodeId cur = stack.back();
+            stack.pop_back();
+            visited[cur] = true;
 
-        NodeId n = x_path[i];
-        _mu[_phi[n]] = n;
-        _mu[n] = _phi[n];
-    }
-    for (size_t i = 0; i < y_path.size(); i++)
-    {
-        if (i % 2 == 0)
-            continue;
+            for(auto v: _g.node(cur).neighbors())
+            {
+                if(!visited[v] && forest_edge(cur, v))
+                {
 
-        NodeId n = y_path[i];
-        _mu[_phi[n]] = n;
-        _mu[n] = _phi[n];
+                    stack.push_back(v);
+                }
+            }
+        }
+
+        auto func = [this] (NodeId n) {
+            _mu[_phi[n]] = n;
+            _mu[n] = _phi[n];
+            return true;
+        };
+
+        do_on_odd(x_path, func, invalid_node_id);
+        do_on_odd(y_path, func, invalid_node_id);
+
+        _mu[x] = y;
+        _mu[y] = x;
+
+        for(NodeId i = 0; i < _g.num_nodes(); ++i)
+        {
+            if(visited[i])
+            {
+                _phi[i] = i;
+                _rho[i] = i;
+                scanned[i] = false;
+            }
+        }
     }
-    _mu[x] = y;
-    _mu[y] = x;
-    //TODO: Maybe restrict to connected component
-    for (NodeId v = 0; v < _g.num_nodes(); ++v)
-    {
-        _phi[v] = v;
-        _rho[v] = v;
-        scanned[v] = false;
-    }
-}
 
 void EdmondsMatching::shrink(NodeId x, NodeId y, NodeId intersection, Path x_path, Path y_path)
 {
