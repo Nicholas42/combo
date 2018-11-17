@@ -35,21 +35,17 @@ def get_optimum(graph):
             if i.startswith(graph):
                 return int(i.rpartition("|")[2].strip())
 
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("""Usage: %s solutionfile.sol"""%sys.argv[0])
-        sys.exit()
-
-    num_edges = get_edges(sys.argv[1])
+def check_optimal(solfile):
+    num_edges = get_edges(solfile)
 
     if num_edges is None:
-        print("File %s is no dmx file.")
+        print("File %s is no dmx file."%solfile)
         sys.exit()
 
-    optimum = get_optimum(get_graph_name(sys.argv[1]))
+    optimum = get_optimum(get_graph_name(os.path.basename(solfile)))
 
     if optimum is None:
-        print("Couldn't find graph %s in %s."%(get_graph_name(sys.argv[1]), OPTIMA_FILE))
+        print("Couldn't find graph %s in %s."%(get_graph_name(solfile), OPTIMA_FILE))
         sys.exit()
 
     if optimum == num_edges:
@@ -58,3 +54,13 @@ if __name__ == "__main__":
         print("Solution is not optimal. Optimum: %s, Solution: %s"%(optimum, num_edges))
         if optimum < num_edges:
             print("WARNING: Solution is to big.")
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("""Usage: %s solutionfile.sol"""%sys.argv[0])
+        sys.exit()
+
+    for i in sys.argv[1:]:
+        print("%s:"%i)
+        check_optimal(i)
