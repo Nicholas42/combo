@@ -11,16 +11,8 @@ Graph EdmondsMatching::get_matching(const Graph &g)
     match.run();
     match.populate(ret);
 
-    for(size_t i = 0; i < ret.num_nodes(); ++i)
-    {
-	    if(ret.node(i).degree() > 1)
-	    {
-		    throw std::runtime_error("No matching.");
-	    }
+        return ret;
     }
-
-    return ret;
-}
 
 void EdmondsMatching::populate(Graph &g) const
 {
@@ -40,10 +32,6 @@ bool EdmondsMatching::forest_edge(NodeId v, NodeId u) const
     return (u == _mu[v] || v == _phi[u] || u == _phi[v]);
 }
 
-bool EdmondsMatching::matching_edge(NodeId v, NodeId u) const
-{
-    return (u == _phi[v]);
-}
 
 Path EdmondsMatching::get_path(NodeId v) const
 {

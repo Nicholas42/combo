@@ -45,9 +45,7 @@ namespace ED
         NodeType get_type(NodeId node) const;
         
         bool forest_edge(NodeId v, NodeId u) const;
-
-        bool matching_edge(NodeId v, NodeId u) const;
-
+        
         Path get_path(NodeId v) const;
 
         NodeId get_intersection(Path x_path, Path y_path) const;
