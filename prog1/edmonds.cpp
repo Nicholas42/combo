@@ -78,6 +78,8 @@ NodeId EdmondsMatching::get_intersection(Path x_path, Path y_path) const
 
     void EdmondsMatching::augment(NodeId x, NodeId y, Path x_path, Path y_path)
     {
+        // We only need to reset this connected component of the forest afterwards. But we need to safe it before the
+        // matching edges are updated, since this changes the connected component.
         std::vector<int> visited(_g.num_nodes(), false);
         std::vector<NodeId> stack;
         stack.push_back(x);
@@ -97,6 +99,7 @@ NodeId EdmondsMatching::get_intersection(Path x_path, Path y_path) const
             }
         }
 
+        // Extreme measures to avoid code duplication.
         auto func = [this] (NodeId n) {
             _mu[_phi[n]] = n;
             _mu[n] = _phi[n];
@@ -109,6 +112,7 @@ NodeId EdmondsMatching::get_intersection(Path x_path, Path y_path) const
         _mu[x] = y;
         _mu[y] = x;
 
+        // Now the connected component is reseted.
         for(NodeId i = 0; i < _g.num_nodes(); ++i)
         {
             if(visited[i])
@@ -124,9 +128,10 @@ void EdmondsMatching::shrink(NodeId x, NodeId y, NodeId intersection, Path x_pat
 {
     assert(intersection != invalid_node_id);
 
+    // This is the first root of a blossom on both paths.
     NodeId root = _rho[intersection];
     assert(get_type(root) == NodeType::outer);
-
+    // On does not simply duplicate code.
         auto func = [this, root](NodeId n)
         {
             if(_rho[_phi[n]] == root)
@@ -141,6 +146,7 @@ void EdmondsMatching::shrink(NodeId x, NodeId y, NodeId intersection, Path x_pat
             return true;
         };
 
+        // Once to the root the other time just to the intersection, otherwise we would change some nodes twice.
         do_on_odd(x_path, func, root);
         do_on_odd(y_path, func, intersection);
 
@@ -166,9 +172,11 @@ void EdmondsMatching::shrink(NodeId x, NodeId y, NodeId intersection, Path x_pat
         }
         };
 
+        // It would not be bad to mark nodes twice but it is also not necessary.
         mark_path_nodes(x_path, root);
         mark_path_nodes(y_path, intersection);
 
+        // Now all blossoms intersection both paths belong to a blossom rooted at root.
         for (NodeId i = 0; i < _g.num_nodes(); ++i)
         {
             if (on_path[_rho[i]])
@@ -190,7 +198,7 @@ void EdmondsMatching::scan_node(NodeId node)
         {
             // Grow step
             _phi[neighbor] = node;
-            
+
 
             continue;
         }
@@ -207,6 +215,7 @@ void EdmondsMatching::scan_node(NodeId node)
 
         if (intersection == invalid_node_id)
         {
+            // So the paths are vertex disjoint, we can augment the matching.
             augment(node, neighbor, x_path, y_path);
             
 
@@ -215,6 +224,7 @@ void EdmondsMatching::scan_node(NodeId node)
 
         else
         {
+            // The paths are not vertex disjoint, so we put them in the same blossom and shrink it.
             shrink(node, neighbor, intersection, x_path, y_path);
             
 
@@ -225,10 +235,6 @@ void EdmondsMatching::scan_node(NodeId node)
 
 void EdmondsMatching::run()
 {
-    for (NodeId i = 0; i < _g.num_nodes(); i++)
-    {
-        _mu[i] = _phi[i] = _rho[i] = i;
-    }
 
     while (true)
     {
