@@ -40,8 +40,6 @@ namespace ED
 
         }
 
-      bool check() const;
-
         void populate(Graph &g) const;
 
         NodeType get_type(NodeId node) const;
@@ -69,6 +67,22 @@ namespace ED
         std::vector<bool> scanned;
 
     };
+
+    inline
+    NodeType EdmondsMatching::get_type(NodeId node) const
+    {
+        NodeId mu = _mu[node];
+        if (mu == node || _phi[mu] != mu)
+        {
+            return NodeType::outer;
+        }
+        if (_phi[node] == node)
+        {
+            return NodeType::out_of_forrest;
+        }
+
+        return NodeType::inner;
+    }
 
 } // namespace ED
 

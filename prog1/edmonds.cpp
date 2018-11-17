@@ -3,17 +3,6 @@
 namespace ED
 {
 
-  bool EdmondsMatching::check() const
-  {
-    for(size_t i = 0; i < _g.num_nodes(); ++i)
-      {
-	if(_phi[i] == _mu[i] && _mu[i] != i)
-	  {
-	    return false;
-	  }
-      }
-    return true;
-  }
 Graph EdmondsMatching::get_matching(const Graph &g)
 {
     Graph ret(g.num_nodes());
@@ -46,24 +35,9 @@ void EdmondsMatching::populate(Graph &g) const
     }
 }
 
-NodeType EdmondsMatching::get_type(NodeId node) const
-{
-    NodeId mu = _mu[node];
-    if (mu == node || _phi[mu] != mu)
-    {
-        return NodeType::outer;
-    }
-    if (_phi[node] == node)
-    {
-        return NodeType::out_of_forrest;
-    }
-
-    return NodeType::inner;
-}
-
 bool EdmondsMatching::forest_edge(NodeId v, NodeId u) const
 {
-    return (u == _mu[v] || v == _mu[u] || u == _phi[v]);
+    return (u == _mu[v] || v == _phi[u] || u == _phi[v]);
 }
 
 bool EdmondsMatching::matching_edge(NodeId v, NodeId u) const
@@ -75,13 +49,12 @@ Path EdmondsMatching::get_path(NodeId v) const
 {
     assert(get_type(v) == NodeType::outer);
 
-    std::cout << "start" << std::endl;
-
     Path path;
     NodeId cur = v, last = invalid_node_id;
     bool use_mu = true;
     do
     {
+        assert(path.size() <= _g.num_nodes());
         path.push_back(cur);
         last = cur;
         if (use_mu)
@@ -93,18 +66,7 @@ Path EdmondsMatching::get_path(NodeId v) const
             cur = _phi[last];
         }
         use_mu = !use_mu;
-        if(path.size() > _g.num_nodes())
-        {
-            for(auto i: path)
-            {
-                std::cout << i << ",";
-            }
-            std::cout << std::endl;
-            throw std::runtime_error("M");
-        }
-    } while (cur != last);
-
-    std::cout << "end" << std::endl;
+        } while (cur != last);
 
     return path;
 }
@@ -129,7 +91,6 @@ NodeId EdmondsMatching::get_intersection(Path x_path, Path y_path) const
 
 void EdmondsMatching::augment(NodeId x, NodeId y, Path x_path, Path y_path)
 {
-    std::cout << "Augment " << x << " to " << y << std::endl;
     for (size_t i = 0; i < x_path.size(); i++)
     {
         if (i % 2 == 0)
@@ -161,19 +122,12 @@ void EdmondsMatching::augment(NodeId x, NodeId y, Path x_path, Path y_path)
 
 void EdmondsMatching::shrink(NodeId x, NodeId y, NodeId intersection, Path x_path, Path y_path)
 {
-    NodeId root = invalid_node_id;
-    for (auto path_node : get_path(intersection))
-    {
-        if (_rho[path_node] == path_node)
-        {
-            root = path_node;
-	    break;
-        }
-    }
-    assert(root != invalid_node_id);
-    std::cout << "Shrinking with root " << root << std::endl;
+    assert(intersection != invalid_node_id);
 
-    for (size_t i = 0; i < x_path.size() && i != root; i++)
+    NodeId root = _rho[intersection];
+    assert(get_type(root) == NodeType::outer);
+
+    for (size_t i = 0; i < x_path.size() && x_path[i] != root; i++)
     {
         if (i % 2 == 0 || _rho[_phi[i]] == root)
         {
@@ -182,7 +136,7 @@ void EdmondsMatching::shrink(NodeId x, NodeId y, NodeId intersection, Path x_pat
 
         _phi[_phi[i]] = i;
     }
-    for (size_t i = 0; i < y_path.size() && i != root; i++)
+    for (size_t i = 0; i < y_path.size() && y_path[i] != intersection; i++)
     {
         if (i % 2 == 0 || _rho[_phi[i]] == root)
         {
@@ -201,22 +155,7 @@ void EdmondsMatching::shrink(NodeId x, NodeId y, NodeId intersection, Path x_pat
         _phi[y] = x;
     }
 
-    if(!check())
-    {
-	std::cout << _rho[x_path[0]] << " " << _rho[y_path[0]] << std::endl;
-	for(auto i: x_path)
-	{
-		std::cout << i << " ";
-	}
-	std::cout << std::endl;
-	for(auto i: y_path)
-	{
-		std::cout << i << " ";
-	}
-	std::cout << std::endl;
-	assert(false);
-    }
-    std::vector<bool> on_path(_g.num_nodes(), false);
+    std::vector<int> on_path(_g.num_nodes(), false);
     for(auto i: x_path)
     {
 	    on_path[i] = true;
@@ -228,7 +167,7 @@ void EdmondsMatching::shrink(NodeId x, NodeId y, NodeId intersection, Path x_pat
     for(auto i: y_path)
     {
 	    on_path[i] = true;
-	    if(i == root)
+	    if(i == intersection)
 	    {
 		    break;
 	    }
@@ -237,34 +176,25 @@ void EdmondsMatching::shrink(NodeId x, NodeId y, NodeId intersection, Path x_pat
     {
 	if(on_path[_rho[i]])
 	{
-		_rho[i] = root;	
-	}	
+		_rho[i] = root;
+	}
     }
-  assert(check());
 }
 
 void EdmondsMatching::scan_node(NodeId node)
 {
-  assert(check());
     const Node &n = _g.node(node);
+    
     for (auto neighbor : n.neighbors())
     {
         NodeType type = get_type(neighbor);
 
-        std::cout << "Looking at " << node << " " << neighbor << std::endl;
-	/*
-        std::cout << "Values are:" << std::endl;
-        for (int i = 0; i < _g.num_nodes(); i++)
-        {
-            std::cout << i << "\t" << _mu[i] << "\t" << _phi[i] << "\t" << _rho[i] << std::endl;
-	    }*/
-        std::cout << "Type of neigbor is " << (int)type << std::endl;
-
-        if (type == NodeType::out_of_forrest)
+	if (type == NodeType::out_of_forrest)
         {
             // Grow step
-            std::cout << "Grow by " << neighbor << " at " << node << std::endl;
             _phi[neighbor] = node;
+            
+
             continue;
         }
         if (!(type == NodeType::outer && _rho[node] != _rho[neighbor]))
@@ -272,24 +202,25 @@ void EdmondsMatching::scan_node(NodeId node)
             continue;
         }
 
-        std::cout << "getting paths\n";
 
         auto x_path = get_path(node);
         auto y_path = get_path(neighbor);
 
-        std::cout << "gotten paths\n";
         auto intersection = get_intersection(x_path, y_path);
-        std::cout << "gotten intersection\n";
 
         if (intersection == invalid_node_id)
         {
             augment(node, neighbor, x_path, y_path);
+            
+
             return;
         }
 
         else
         {
             shrink(node, neighbor, intersection, x_path, y_path);
+            
+
         }
     }
     scanned[node] = true;
@@ -320,15 +251,9 @@ void EdmondsMatching::run()
         {
             break;
         }
-        std::cout << "Scanning node " << x << std::endl;
         scan_node(x);
     }
 
-    std::cout << "Values are:" << std::endl;
-    for (int i = 0; i < _g.num_nodes(); i++)
-    {
-        std::cout << i << "\t" << _mu[i] << "\t" << _phi[i] << "\t" << _rho[i] << std::endl;
-    }
 }
 
 } // namespace ED
