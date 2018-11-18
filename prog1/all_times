@@ -1,0 +1,175 @@
+graphs/ar9152.dmx
+
+real	0m0.769s
+user	0m0.768s
+sys	0m0.000s
+
+
+graphs/ch71009.dmx
+
+real	9m2.612s
+user	9m1.862s
+sys	0m0.073s
+
+
+graphs/ei8246.dmx
+
+real	0m1.283s
+user	0m1.271s
+sys	0m0.010s
+
+
+graphs/fixed.dmx
+
+real	0m1.211s
+user	0m1.209s
+sys	0m0.000s
+
+
+graphs/gr9882.dmx
+
+real	0m2.682s
+user	0m2.661s
+sys	0m0.017s
+
+
+graphs/K2.dmx
+
+real	0m0.003s
+user	0m0.001s
+sys	0m0.002s
+
+
+graphs/K3.dmx
+
+real	0m0.003s
+user	0m0.001s
+sys	0m0.002s
+
+
+graphs/K4.dmx
+
+real	0m0.003s
+user	0m0.001s
+sys	0m0.002s
+
+
+graphs/lu980.dmx
+
+real	0m0.024s
+user	0m0.024s
+sys	0m0.000s
+
+
+graphs/P3.dmx
+
+real	0m0.003s
+user	0m0.003s
+sys	0m0.000s
+
+
+graphs/pbd984.dmx
+
+real	0m0.033s
+user	0m0.033s
+sys	0m0.000s
+
+
+graphs/peterson.dmx
+
+real	0m0.003s
+user	0m0.001s
+sys	0m0.002s
+
+
+graphs/pma343.dmx
+
+real	0m0.009s
+user	0m0.009s
+sys	0m0.000s
+
+
+graphs/queen10_10.dmx
+
+real	0m0.006s
+user	0m0.006s
+sys	0m0.000s
+
+
+graphs/queen11_11.dmx
+
+real	0m0.007s
+user	0m0.005s
+sys	0m0.001s
+
+
+graphs/queen16_16.dmx
+
+real	0m0.014s
+user	0m0.006s
+sys	0m0.008s
+
+
+graphs/queen27_27.dmx
+
+real	0m0.046s
+user	0m0.045s
+sys	0m0.000s
+
+
+graphs/queen4_4.dmx
+
+real	0m0.003s
+user	0m0.003s
+sys	0m0.000s
+
+
+graphs/queen5_5.dmx
+
+real	0m0.003s
+user	0m0.002s
+sys	0m0.001s
+
+
+graphs/queen6_6.dmx
+
+real	0m0.004s
+user	0m0.003s
+sys	0m0.001s
+
+
+graphs/queen7_7.dmx
+
+real	0m0.004s
+user	0m0.001s
+sys	0m0.003s
+
+
+graphs/queen8_8.dmx
+
+real	0m0.005s
+user	0m0.001s
+sys	0m0.004s
+
+
+graphs/queen9_9.dmx
+
+real	0m0.006s
+user	0m0.006s
+sys	0m0.000s
+
+
+graphs/simple.dmx
+
+real	0m0.005s
+user	0m0.001s
+sys	0m0.004s
+
+
+graphs/xqf131.dmx
+
+real	0m0.007s
+user	0m0.004s
+sys	0m0.003s
+
+
