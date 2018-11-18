@@ -13,7 +13,7 @@ Graph EdmondsMatching::get_matching(const Graph &g)
 
 Graph EdmondsMatching::populate() const
 {
-    Graph g (_g.num_nodes());
+    Graph g(_g.num_nodes());
     for (NodeId v = 0; v < g.num_nodes(); ++v)
     {
         NodeId other = _mu[v];
@@ -31,29 +31,28 @@ bool EdmondsMatching::forest_edge(NodeId v, NodeId u) const
     return (u == _mu[v] || v == _phi[u] || u == _phi[v]);
 }
 
-
 Path EdmondsMatching::get_path(NodeId v) const
 {
     assert(get_type(v) == NodeType::outer);
 
-        Path path;
-        NodeId cur = v, last;
-        bool use_mu = true;
-        do
+    Path path;
+    NodeId cur = v, last;
+    bool use_mu = true;
+    do
+    {
+        assert(path.size() <= _g.num_nodes());
+        path.push_back(cur);
+        last = cur;
+        if (use_mu)
         {
-            assert(path.size() <= _g.num_nodes());
-            path.push_back(cur);
-            last = cur;
-            if (use_mu)
-            {
-                cur = _mu[last];
-            }
-            else
-            {
-                cur = _phi[last];
-            }
-            use_mu = !use_mu;
-        } while (cur != last);
+            cur = _mu[last];
+        }
+        else
+        {
+            cur = _phi[last];
+        }
+        use_mu = !use_mu;
+    } while (cur != last);
 
     return path;
 }
@@ -76,53 +75,52 @@ NodeId EdmondsMatching::get_intersection(Path x_path, Path y_path) const
     return invalid_node_id;
 }
 
-    void EdmondsMatching::augment(NodeId x, NodeId y, Path x_path, Path y_path)
+void EdmondsMatching::augment(NodeId x, NodeId y, Path x_path, Path y_path)
+{
+    // We only need to reset this connected component of the forest afterwards. But we need to safe it before the
+    // matching edges are updated, since this changes the connected component.
+    std::vector<int> visited(_g.num_nodes(), false);
+    std::vector<NodeId> stack;
+    stack.push_back(x);
+    while (!stack.empty())
     {
-        // We only need to reset this connected component of the forest afterwards. But we need to safe it before the
-        // matching edges are updated, since this changes the connected component.
-        std::vector<int> visited(_g.num_nodes(), false);
-        std::vector<NodeId> stack;
-        stack.push_back(x);
-        while(!stack.empty())
+        NodeId cur = stack.back();
+        stack.pop_back();
+        visited[cur] = true;
+
+        for (auto v : _g.node(cur).neighbors())
         {
-            NodeId cur = stack.back();
-            stack.pop_back();
-            visited[cur] = true;
-
-            for(auto v: _g.node(cur).neighbors())
+            if (!visited[v] && forest_edge(cur, v))
             {
-                if(!visited[v] && forest_edge(cur, v))
-                {
-
-                    stack.push_back(v);
-                }
-            }
-        }
-
-        // Extreme measures to avoid code duplication.
-        auto func = [this] (NodeId n) {
-            _mu[_phi[n]] = n;
-            _mu[n] = _phi[n];
-            return true;
-        };
-
-        do_on_odd(x_path, func, invalid_node_id);
-        do_on_odd(y_path, func, invalid_node_id);
-
-        _mu[x] = y;
-        _mu[y] = x;
-
-        // Now the connected component is reseted.
-        for(NodeId i = 0; i < _g.num_nodes(); ++i)
-        {
-            if(visited[i])
-            {
-                _phi[i] = i;
-                _rho[i] = i;
-                scanned[i] = false;
+                stack.push_back(v);
             }
         }
     }
+
+    // Extreme measures to avoid code duplication.
+    auto func = [this](NodeId n) {
+        _mu[_phi[n]] = n;
+        _mu[n] = _phi[n];
+        return true;
+    };
+
+    do_on_odd(x_path, func, invalid_node_id);
+    do_on_odd(y_path, func, invalid_node_id);
+
+    _mu[x] = y;
+    _mu[y] = x;
+
+    // Now the connected component is reseted.
+    for (NodeId i = 0; i < _g.num_nodes(); ++i)
+    {
+        if (visited[i])
+        {
+            _phi[i] = i;
+            _rho[i] = i;
+            scanned[i] = false;
+        }
+    }
+}
 
 void EdmondsMatching::shrink(NodeId x, NodeId y, NodeId intersection, Path x_path, Path y_path)
 {
@@ -132,23 +130,22 @@ void EdmondsMatching::shrink(NodeId x, NodeId y, NodeId intersection, Path x_pat
     NodeId root = _rho[intersection];
     assert(get_type(root) == NodeType::outer);
     // On does not simply duplicate code.
-        auto func = [this, root](NodeId n)
+    auto func = [this, root](NodeId n) {
+        if (_rho[_phi[n]] == root)
         {
-            if(_rho[_phi[n]] == root)
-            {
-                return true;
-            }
-            if (n == root)
-            {
-                return false;
-            }
-            _phi[_phi[n]] = n;
             return true;
-        };
+        }
+        if (n == root)
+        {
+            return false;
+        }
+        _phi[_phi[n]] = n;
+        return true;
+    };
 
-        // Once to the root the other time just to the intersection, otherwise we would change some nodes twice.
-        do_on_odd(x_path, func, root);
-        do_on_odd(y_path, func, intersection);
+    // Once to the root the other time just to the intersection, otherwise we would change some nodes twice.
+    do_on_odd(x_path, func, root);
+    do_on_odd(y_path, func, intersection);
 
     if (_rho[x] != root)
     {
@@ -159,46 +156,44 @@ void EdmondsMatching::shrink(NodeId x, NodeId y, NodeId intersection, Path x_pat
         _phi[y] = x;
     }
 
-        std::vector<int> on_path(_g.num_nodes(), false);
-        auto mark_path_nodes = [&on_path, this] (Path &p, NodeId abort)
+    std::vector<int> on_path(_g.num_nodes(), false);
+    auto mark_path_nodes = [&on_path, this](Path &p, NodeId abort) {
+        for (auto i : p)
         {
-        for (auto i: p)
-        {
-            if(i == abort)
+            if (i == abort)
             {
                 return;
             }
             on_path[i] = true;
         }
-        };
+    };
 
-        // It would not be bad to mark nodes twice but it is also not necessary.
-        mark_path_nodes(x_path, root);
-        mark_path_nodes(y_path, intersection);
+    // It would not be bad to mark nodes twice but it is also not necessary.
+    mark_path_nodes(x_path, root);
+    mark_path_nodes(y_path, intersection);
 
-        // Now all blossoms intersection both paths belong to a blossom rooted at root.
-        for (NodeId i = 0; i < _g.num_nodes(); ++i)
+    // Now all blossoms intersection both paths belong to a blossom rooted at root.
+    for (NodeId i = 0; i < _g.num_nodes(); ++i)
+    {
+        if (on_path[_rho[i]])
         {
-            if (on_path[_rho[i]])
-            {
-                _rho[i] = root;
-            }
+            _rho[i] = root;
         }
     }
+}
 
 void EdmondsMatching::scan_node(NodeId node)
 {
     const Node &n = _g.node(node);
-    
+
     for (auto neighbor : n.neighbors())
     {
         NodeType type = get_type(neighbor);
 
-	if (type == NodeType::out_of_forrest)
+        if (type == NodeType::out_of_forrest)
         {
             // Grow step
             _phi[neighbor] = node;
-
 
             continue;
         }
@@ -206,7 +201,6 @@ void EdmondsMatching::scan_node(NodeId node)
         {
             continue;
         }
-
 
         auto x_path = get_path(node);
         auto y_path = get_path(neighbor);
@@ -217,7 +211,6 @@ void EdmondsMatching::scan_node(NodeId node)
         {
             // So the paths are vertex disjoint, we can augment the matching.
             augment(node, neighbor, x_path, y_path);
-            
 
             return;
         }
@@ -226,8 +219,6 @@ void EdmondsMatching::scan_node(NodeId node)
         {
             // The paths are not vertex disjoint, so we put them in the same blossom and shrink it.
             shrink(node, neighbor, intersection, x_path, y_path);
-            
-
         }
     }
     scanned[node] = true;
@@ -235,41 +226,39 @@ void EdmondsMatching::scan_node(NodeId node)
 
 void EdmondsMatching::run()
 {
-
     while (true)
     {
         auto x = invalid_node_id;
 
-            for (NodeId i = 0; i < _g.num_nodes(); i++)
-            {
-                if (get_type(i) == NodeType::outer && !scanned[i])
-                {
-                    x = i;
-                    break;
-                }
-            }
-
-            if (x == invalid_node_id)
-            {
-                break;
-            }
-            scan_node(x);
-        }
-    }
-
-    template <typename func>
-    void EdmondsMatching::do_on_odd(Path &p, func f, NodeId stop)
-    {
-        bool go_on = true;
-        for (size_t i = 1; i < p.size() && go_on; i += 2)
+        for (NodeId i = 0; i < _g.num_nodes(); i++)
         {
-            if(p[i-1] == stop || p[i] == stop)
+            if (get_type(i) == NodeType::outer && !scanned[i])
             {
+                x = i;
                 break;
             }
-            go_on = f(p[i]);
         }
 
+        if (x == invalid_node_id)
+        {
+            break;
+        }
+        scan_node(x);
+    }
+}
+
+template <typename func>
+void EdmondsMatching::do_on_odd(Path &p, func f, NodeId stop)
+{
+    bool go_on = true;
+    for (size_t i = 1; i < p.size() && go_on; i += 2)
+    {
+        if (p[i - 1] == stop || p[i] == stop)
+        {
+            break;
+        }
+        go_on = f(p[i]);
+    }
 }
 
 } // namespace ED
