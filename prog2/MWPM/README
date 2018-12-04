@@ -1,0 +1,21 @@
+mwpm.cpp:a small sample "C"-program compiled with C++,
+	   showing how to use the blossomV code
+       	   for computing maximum matchings.
+
+COMPILE: just type
+  make
+
+RUN:
+     ./mwpm <dimacs-file>
+  Example:
+     ./mwpm ./instances/K100.dimacs
+
+NOTE:
+- blossomV will SEGFAULT if no perfect matching exists!
+- For compiling your own program, you can orient yourself by the Makefile for mwpm, although you should probably
+  replace the "-g" debug flag by a respective flag for compiler optimization (e.g. "-O3").
+- Do not use absolute paths for linking against the blossomV librabry, but use relative paths and include the library
+  in your submission
+- For testing you can use the given instances in the instances/ directory or create new ones using the script randKn.tcl
+  from the instances/ directory, e.g. like this:
+  ./randKn.tcl 200 > K200.dimacs

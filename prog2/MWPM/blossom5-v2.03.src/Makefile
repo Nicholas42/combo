@@ -1,0 +1,23 @@
+DIRS := . MinCost GEOM
+
+SOURCES := $(foreach dir, $(DIRS), $(wildcard $(dir)/*.cpp))
+OBJS := $(patsubst %.cpp, %.o, $(SOURCES))
+
+#CFLAGS := -O5 -D_NDEBUG
+CFLAGS := -g
+AR := ar
+CC := g++
+LIBS :=  -lrt
+INCLUDES :=
+LIBDIR :=
+
+all: libblossom5.a
+
+libblossom5.a: ${OBJS}
+	${AR} -r libblossom5.a ${OBJS}
+
+.cpp.o:
+	$(CC) $(CFLAGS) ${INCLUDES} $< -c -o $@
+
+clean:
+	rm -f ${OBJS} blossom5 libblossom5.a
