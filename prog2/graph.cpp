@@ -5,7 +5,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace ED
+namespace MIN_MEAN_WEIGHT_CYCLE
 {
 /////////////////////////////////////////////
 //! \c Node definitions

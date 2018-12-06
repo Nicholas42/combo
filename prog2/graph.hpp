@@ -13,7 +13,7 @@ graphs.
 #include <limits>
 #include <vector>
 
-namespace ED   // for Edmonds
+namespace MIN_MEAN_WEIGHT_CYCLE   // for Edmonds
 {
 using size_type = std::size_t;
 using capacity = int;
