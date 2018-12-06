@@ -18,6 +18,9 @@ namespace MIN_MEAN_WEIGHT_CYCLE   // for Edmonds
 using size_type = std::size_t;
 using capacity = int;
 
+capacity constexpr min_capacity = std::numeric_limits<capacity>::min();
+capacity constexpr max_capacity = std::numeric_limits<capacity>::max();
+
 //! Always use these typedefs to identify nodes by their numbers.
 //! Use different typedefs for internal standard indexing starting with 0
 //! and DIMACS-based indexing starting with 1.
@@ -161,7 +164,7 @@ class Graph
 
 // BEGIN: Inline section
 
-inline NodeId Edge::other(ED::NodeId node_id) const
+inline NodeId Edge::other(NodeId node_id) const
 {
     return node_id == from ? to : from;
 }
@@ -192,17 +195,17 @@ inline Node const &Graph::node(NodeId const id) const
     return _nodes.at(id);
 }
 
-inline capacity Graph::get_capacity(ED::EdgeId edge_id) const
+inline capacity Graph::get_capacity(EdgeId edge_id) const
 {
     return _edges.at(edge_id).cap;
 }
 
-inline NodeId Graph::get_other_node(ED::EdgeId edge_id, ED::NodeId node_id) const
+inline NodeId Graph::get_other_node(EdgeId edge_id, NodeId node_id) const
 {
     return _edges.at(edge_id).other(node_id);
 }
 // END: Inline section
 
-}   // namespace ED
+}   // namespace MIN_MEAN_WEIGHT_CYCLE
 
 #endif /* GRAPH_HPP */
