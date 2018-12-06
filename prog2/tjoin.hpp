@@ -8,6 +8,10 @@ namespace MIN_MEAN_WEIGHT_CYCLE
 class TJoin
 {
   public:
+
+    TJoin (Graph &g)
+    {}
+
     capacity get_capacity() const;
 
     EdgeId get_num_edges() const;
