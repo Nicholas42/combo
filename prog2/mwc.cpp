@@ -1,6 +1,6 @@
 #include "mwc.hpp"
 
-namespace MIN_MEAN_WEIGHT_CYCLE
+namespace MMWC
 {
 bool MinMeanWeightCycle::has_circle() const
 {
@@ -44,4 +44,4 @@ bool MinMeanWeightCycle::has_circle() const
 
     return false;
 }
-}   // namespace MIN_MEAN_WEIGHT_CYCLE
+}   // namespace MMWC

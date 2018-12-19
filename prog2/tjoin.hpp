@@ -3,7 +3,7 @@
 
 #include "graph.hpp"
 
-namespace MIN_MEAN_WEIGHT_CYCLE
+namespace MMWC
 {
 class TJoin
 {

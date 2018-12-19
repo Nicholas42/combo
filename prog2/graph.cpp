@@ -5,7 +5,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace MIN_MEAN_WEIGHT_CYCLE
+namespace MMWC
 {
 /////////////////////////////////////////////
 //! \c Node definitions
@@ -128,4 +128,4 @@ DimacsId to_dimacs_id(NodeId const node_id)
     return static_cast<DimacsId>(node_id + 1);
 }
 
-}   // namespace ED
+}   // namespace MMWC

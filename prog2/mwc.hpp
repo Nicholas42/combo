@@ -4,7 +4,7 @@
 #include "graph.hpp"
 #include "tjoin.hpp"
 
-namespace MIN_MEAN_WEIGHT_CYCLE
+namespace MMWC
 {
 class MinMeanWeightCycle
 {
@@ -30,12 +30,12 @@ class MinMeanWeightCycle
 
 // BEGIN INLINE SECTION
 
-inline capacity MinMeanWeightCycle::adjusted_cap(MIN_MEAN_WEIGHT_CYCLE::EdgeId edge_id) const
+inline capacity MinMeanWeightCycle::adjusted_cap(MMWC::EdgeId edge_id) const
 {
     return _g.get_capacity(edge_id) - _adjustment;
 }
 
 // END INLINE SECTION
-}   // namespace MIN_MEAN_WEIGHT_CYCLE
+}   // namespace MMWC
 
 #endif   // PROG2_MWC_HPP

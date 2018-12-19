@@ -13,7 +13,7 @@ graphs.
 #include <limits>
 #include <vector>
 
-namespace MIN_MEAN_WEIGHT_CYCLE   // for Edmonds
+namespace MMWC   // for Minimum Mean Weighted Cycle
 {
 using size_type = std::size_t;
 using capacity = int;
@@ -206,6 +206,6 @@ inline NodeId Graph::get_other_node(EdgeId edge_id, NodeId node_id) const
 }
 // END: Inline section
 
-}   // namespace MIN_MEAN_WEIGHT_CYCLE
+}   // namespace MMWC
 
 #endif /* GRAPH_HPP */
