@@ -35,6 +35,7 @@ using EdgeId = size_type;
 /** Useful constant different from the id of any actual node: **/
 NodeId constexpr invalid_node_id = std::numeric_limits<NodeId>::max();
 DimacsId constexpr invalid_dimacs_id = std::numeric_limits<DimacsId>::max();
+EdgeId constexpr invalid_edge_id = std::numeric_limits<EdgeId>::max();
 
 /**
    Nodes in DIMACS files are counted from 1, but here we count them from 0 so they match
@@ -152,6 +153,8 @@ class Graph
 
     NodeId get_other_node(EdgeId edge_id, NodeId node_id) const;
 
+    const std::vector<Edge> &get_edges() const;
+
     /**
       @brief Prints the graph to the given ostream in DIMACS format.
     **/
@@ -203,6 +206,11 @@ inline capacity Graph::get_capacity(EdgeId edge_id) const
 inline NodeId Graph::get_other_node(EdgeId edge_id, NodeId node_id) const
 {
     return _edges.at(edge_id).other(node_id);
+}
+
+inline const std::vector<Edge> &Graph::get_edges() const
+{
+    return _edges;
 }
 // END: Inline section
 
