@@ -30,11 +30,11 @@ std::vector<TJoin::metric_closure_member>
         for (const EdgeId e: _g.node(cur).incident_edges())
         {
             NodeId other = _g.get_other_node(e, cur);
-            if (dist + std::abs(_g.get_capacity(e)) < ret[other].dist)
+            if (dist + get_cap(e) < ret[other].dist)
             {
                 assert(!visited[other]);
                 //blah.erase(other);
-                ret[other].dist = dist + std::abs(_g.get_capacity(e));
+                ret[other].dist = dist + get_cap(e);
                 //blah.insert(other);
                 ret[other].incoming = e;
             }

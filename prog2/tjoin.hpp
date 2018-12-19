@@ -9,7 +9,7 @@ namespace MMWC
 class TJoin
 {
   public:
-    TJoin(const Graph &g) : _g(g)
+    TJoin(const Graph &g, capacity offset) : _g(g), _offset(offset)
     {
         //all_pairs_shortest_paths();
         asp();
@@ -55,6 +55,7 @@ class TJoin
     std::vector<metric_closure_member> compute_shortest_paths(NodeId source) const;
 
     const Graph &_g;
+    capacity _offset;
     std::vector<NodeId> _odd_nodes;
     std::vector<EdgeId> _used_edges;
     std::vector<std::vector<metric_closure_member>> _shortest_paths;
@@ -67,7 +68,7 @@ inline const std::vector<EdgeId> &TJoin::get_used_edges() const
 
 inline capacity TJoin::get_cap(EdgeId e) const
 {
-    return std::abs(_g.get_capacity(e));
+    return std::abs(_g.get_capacity(e) - _offset);
 }
 
 }   // namespace MMWC
