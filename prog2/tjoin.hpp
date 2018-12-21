@@ -9,7 +9,11 @@ namespace MMWC
 class TJoin
 {
   public:
-    TJoin(const Graph &g, capacity offset) : _g(g), _offset(offset)
+    TJoin(const Graph &g, capacity offset, capacity multiplicator) : 
+        _g(g), 
+        _offset(offset),
+        _multiplicator(multiplicator),
+        _capacity(0)
     {
         //all_pairs_shortest_paths();
         asp();
@@ -20,9 +24,9 @@ class TJoin
 
     capacity get_capacity() const;
 
-    EdgeId get_num_edges() const;
+    const std::vector<char> &get_used_edges() const;
 
-    const std::vector<EdgeId> &get_used_edges() const;
+    size_t get_num_edges() const;
 
   private:
     void asp();
@@ -56,19 +60,27 @@ class TJoin
 
     const Graph &_g;
     capacity _offset;
+    capacity _multiplicator;
+    capacity _capacity;
     std::vector<NodeId> _odd_nodes;
-    std::vector<EdgeId> _used_edges;
+    std::vector<char> _used_edges;
     std::vector<std::vector<metric_closure_member>> _shortest_paths;
+    size_t _num_used_edges;
 };
 
-inline const std::vector<EdgeId> &TJoin::get_used_edges() const
+inline const std::vector<char> &TJoin::get_used_edges() const
 {
     return _used_edges;
 }
 
+inline size_t TJoin::get_num_edges() const
+{
+    return _num_used_edges;
+}
+
 inline capacity TJoin::get_cap(EdgeId e) const
 {
-    return std::abs(_g.get_capacity(e) - _offset);
+    return std::abs(_g.get_capacity(e) * _multiplicator - _offset);
 }
 
 }   // namespace MMWC

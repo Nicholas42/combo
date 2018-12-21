@@ -4,6 +4,7 @@
 
 #include "graph.hpp"
 #include "tjoin.hpp"
+#include "mwc.hpp"
 
 struct blah
 {
@@ -35,8 +36,11 @@ int main(int argc, char **argv)
     //*/
     //*
         MMWC::Graph g = MMWC::Graph::build_graph(argv[1]);
+        auto result = MMWC::MinMeanWeightCycle::get_min_mean_cycle(g);
 
-        MMWC::TJoin tj(g);
+        std::cout << g;
+
+        /*MMWC::TJoin tj(g, 0);
 
         MMWC::capacity sum = 0;
         std::vector<size_t> degrees(g.num_nodes(), 0);
@@ -56,5 +60,6 @@ int main(int argc, char **argv)
             }
         }
         std::cout << sum << std::endl;
+        //*/
         //*/
 }

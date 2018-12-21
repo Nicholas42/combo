@@ -3,29 +3,41 @@
 
 #include "graph.hpp"
 #include "tjoin.hpp"
+#include <numeric>
+#include <iostream>
 
 namespace MMWC
 {
 class MinMeanWeightCycle
 {
   public:
-    static Graph mean_weight_cycle(const Graph &g);
+    static Graph get_min_mean_cycle(const Graph &g);
 
   private:
-    MinMeanWeightCycle(const Graph &g) : _g(g), _adjustment(min_capacity)
-    {
-        for (EdgeId edge_id = 0; edge_id < g.num_edges(); ++edge_id)
-        {
-            _adjustment = std::min(_adjustment, g.get_capacity(edge_id));
-        }
-    }
+    explicit MinMeanWeightCycle(const Graph &g) : 
+        _g(g),
+        _adjustment(0),
+        _multiplicator(1)
+    { }
 
-    bool has_circle() const;
+    std::vector<EdgeId> run();
+    Graph populate(std::vector<EdgeId> edges) const;
+
+    std::vector<EdgeId> get_circle(std::vector<char> included_edges) const;
 
     capacity adjusted_cap(EdgeId edge_id) const;
 
+    capacity gcd(capacity a, capacity b) const;
+
+    struct walked_edge
+    {
+        EdgeId edge = invalid_edge_id;
+        NodeId walked_from = invalid_node_id;
+    };
+
     const Graph &_g;
     capacity _adjustment;
+    capacity _multiplicator;
 };
 
 // BEGIN INLINE SECTION
@@ -33,6 +45,11 @@ class MinMeanWeightCycle
 inline capacity MinMeanWeightCycle::adjusted_cap(MMWC::EdgeId edge_id) const
 {
     return _g.get_capacity(edge_id) - _adjustment;
+}
+
+inline capacity MinMeanWeightCycle::gcd(capacity a, capacity b) const
+{
+    return b == 0 ? a : gcd(b, a % b);
 }
 
 // END INLINE SECTION

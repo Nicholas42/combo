@@ -118,11 +118,14 @@ void TJoin::collect_used_edges(PerfectMatching &pm)
         }
     }
 
+    _used_edges = std::vector<char>(_g.num_edges(), 0);
     for (EdgeId e = 0; e < _g.num_edges(); ++e)
     {
         if (t_join[e] != (_g.get_capacity(e) < 0))
         {
-            _used_edges.push_back(e);
+            _capacity += _g.get_capacity(e);
+            _num_used_edges++;
+            _used_edges[e] = 1;
         }
     }
 }
@@ -187,5 +190,10 @@ void TJoin::asp()
     {
         _shortest_paths.push_back(std::move(metric_closure[n]));
     }
+}
+
+capacity TJoin::get_capacity() const
+{
+    return _capacity;
 }
 }   // namespace MMWC
